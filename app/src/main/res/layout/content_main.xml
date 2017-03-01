@@ -10,6 +10,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:focusableInTouchMode="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="org.projects.shoppinglist.MainActivity"
     tools:showIn="@layout/activity_main">
@@ -44,16 +45,41 @@
             android:singleLine="false"
             android:layout_weight="0.86" />
 
+            <Button
+                android:id="@+id/addButton"
+                android:text="Add to list"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
         <Button
-            android:id="@+id/addButton"
-            android:text="Add to list"
+            android:id="@+id/removeButton"
+            android:text="Remove Selected"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/clearButton"
+            android:text="Remove All"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
+        android:layout_height="wrap_content">
+
+    </ListView>
 </LinearLayout>

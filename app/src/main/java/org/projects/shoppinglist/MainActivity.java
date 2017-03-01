@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.util.SparseBooleanArray;
 
 import java.util.ArrayList;
 
@@ -35,6 +36,13 @@ public class MainActivity extends AppCompatActivity {
         //getting our listiew - you can check the ID in the xml to see that it
         //is indeed specified as "list"
         listView = (ListView) findViewById(R.id.list);
+
+        if (savedInstanceState!=null)
+        {
+            if (savedInstanceState.containsKey("list"))
+                bag = savedInstanceState.getStringArrayList("list");
+        }
+
         //here we create a new adapter linking the bag and the
         //listview
         adapter =  new ArrayAdapter<String>(this,
@@ -62,6 +70,37 @@ public class MainActivity extends AppCompatActivity {
                 getMyAdapter().notifyDataSetChanged();
             }
         });
+
+        Button removeButton = (Button) findViewById(R.id.removeButton);
+        removeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SparseBooleanArray array = listView.getCheckedItemPositions();
+                int size = array.size();
+                int removed = 0;
+
+                for(int i = 0; i < size; i++) {
+                    int key = array.keyAt(i);
+                    boolean selected = array.get(key);
+                    if (selected)
+                    {
+                        bag.remove(key-removed);
+                        listView.setItemChecked(key,false);
+                        removed++;
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+        Button clearButton = (Button) findViewById(R.id.clearButton);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adapter.clear();
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -84,5 +123,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putStringArrayList("list",bag);
     }
 }
