@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">ShoppingList</string>
     <string name="action_settings">Settings</string>
+    <string name="confirmation">Confirmation</string>
+    <string name="areYouSure">Are you sure?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

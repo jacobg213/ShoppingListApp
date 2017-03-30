@@ -1,5 +1,6 @@
 package org.projects.shoppinglist;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,15 +12,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.util.SparseBooleanArray;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AreYouSureDialog.OnPositiveListener {
 
 
-    ArrayAdapter<String> adapter;
+    ArrayAdapter<Product> adapter;
     ListView listView;
-    ArrayList<String> bag = new ArrayList<String>();
+    ArrayList<Product> products = new ArrayList<>();
+
+    static AreYouSureDialog dialog;
+    static Context context;
 
     public ArrayAdapter getMyAdapter()
     {
@@ -28,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        context = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -40,13 +46,13 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState!=null)
         {
             if (savedInstanceState.containsKey("list"))
-                bag = savedInstanceState.getStringArrayList("list");
+                products = savedInstanceState.getParcelableArrayList("list");
         }
 
-        //here we create a new adapter linking the bag and the
+        //here we create a new adapter linking the products and the
         //listview
-        adapter =  new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_checked,bag );
+        adapter =  new ArrayAdapter<Product>(this,
+                android.R.layout.simple_list_item_checked, products);
 
         //setting the adapter on the listview
         listView.setAdapter(adapter);
@@ -62,9 +68,9 @@ public class MainActivity extends AppCompatActivity {
                 String name = nameInput.getText().toString();
 
                 EditText quantityInput = (EditText)findViewById(R.id.quantity);
-                String quantity = quantityInput.getText().toString();
+                Integer quantity = Integer.parseInt(quantityInput.getText().toString());
 
-                bag.add(name+" x"+quantity);
+                products.add(new Product(name, quantity));
                 //The next line is needed in order to say to the ListView
                 //that the data has changed - we have added stuff now!
                 getMyAdapter().notifyDataSetChanged();
@@ -84,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     boolean selected = array.get(key);
                     if (selected)
                     {
-                        bag.remove(key-removed);
+                        products.remove(key-removed);
                         listView.setItemChecked(key,false);
                         removed++;
                     }
@@ -97,8 +103,11 @@ public class MainActivity extends AppCompatActivity {
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapter.clear();
-                adapter.notifyDataSetChanged();
+                //showing our dialog.
+                dialog = new MyDialog();
+                //Here we show the dialog
+                //The tag "MyFragement" is not important for us.
+                dialog.show(getFragmentManager(), "MyFragment");
             }
         });
     }
@@ -128,6 +137,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putStringArrayList("list",bag);
+        outState.putParcelableArrayList("list", products);
+    }
+
+    @Override
+    public void onPositiveClicked() {
+        adapter.clear();
+        listView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        products.clear(); //here you can do stuff with the bag and
+        //adapter etc.
+    }
+
+    public static class MyDialog extends AreYouSureDialog {
+
+        @Override
+        protected void negativeClick() {
+            //Here we override the method and can now do something
+            Toast toast = Toast.makeText(context, "No changes.", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 }
