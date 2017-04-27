@@ -50,6 +50,13 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
                 products = savedInstanceState.getParcelableArrayList("list");
         }
 
+        String name = MyPreferenceFragment.getName(this);
+        if(!name.equals("@string/enter_name") || !name.equals(""))
+        {
+            Toast welcome = Toast.makeText(context, "Welcome back "+MyPreferenceFragment.getName(this), Toast.LENGTH_LONG);
+            welcome.show();
+        }
+
         //here we create a new adapter linking the products and the
         //listview
         adapter =  new ArrayAdapter<Product>(this,
