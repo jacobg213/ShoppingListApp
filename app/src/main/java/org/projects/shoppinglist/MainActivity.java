@@ -1,6 +1,7 @@
 package org.projects.shoppinglist;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -98,18 +99,6 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
                 adapter.notifyDataSetChanged();
             }
         });
-
-        Button clearButton = (Button) findViewById(R.id.clearButton);
-        clearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //showing our dialog.
-                dialog = new MyDialog();
-                //Here we show the dialog
-                //The tag "MyFragement" is not important for us.
-                dialog.show(getFragmentManager(), "MyFragment");
-            }
-        });
     }
 
     @Override
@@ -127,10 +116,21 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.clearButton) {
+            dialog = new MyDialog();
+            dialog.show(getFragmentManager(), "MyFragment");
         }
 
+        if (item.getItemId()==R.id.settings)
+        {
+            //Start our settingsactivity and listen to result - i.e.
+            //when it is finished.
+            Intent intent = new Intent(this,SettingsActivity.class);
+            startActivityForResult(intent,1);
+            //notice the 1 here - this is the code we then listen for in the
+            //onActivityResult
+
+        }
         return super.onOptionsItemSelected(item);
     }
 
