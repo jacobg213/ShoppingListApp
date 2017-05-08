@@ -5,34 +5,35 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.util.SparseBooleanArray;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.firebase.ui.database.FirebaseListAdapter;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.ArrayList;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity implements AreYouSureDialog.OnPositiveListener {
 
-
-    ArrayAdapter<Product> adapter;
     ListView listView;
-    ArrayList<Product> products = new ArrayList<>();
+    FirebaseListAdapter mAdapter;
 
     static AreYouSureDialog dialog;
     static Context context;
+    final DatabaseReference firebase = FirebaseDatabase.getInstance().getReference().child("items");
 
-    public ArrayAdapter getMyAdapter()
+    public FirebaseListAdapter getMyAdapter()
     {
-        return adapter;
+        return mAdapter;
     }
 
     @Override
@@ -46,12 +47,18 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
         //getting our listiew - you can check the ID in the xml to see that it
         //is indeed specified as "list"
         listView = (ListView) findViewById(R.id.list);
+        //here we set the choice mode - meaning in this case we can
+        //only select one item at a time.
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
-        if (savedInstanceState!=null)
-        {
-            if (savedInstanceState.containsKey("list"))
-                products = savedInstanceState.getParcelableArrayList("list");
-        }
+        mAdapter = new FirebaseListAdapter<Product>(this, Product.class, android.R.layout.simple_list_item_multiple_choice, firebase) {
+            @Override
+            protected void populateView(View view, Product product, int i) {
+                TextView textView = (TextView) view.findViewById(android.R.id.text1); //standard android id.
+                textView.setText(product.toString());
+            }
+        };
+        listView.setAdapter(mAdapter);
 
         String name = MyPreferenceFragment.getName(this);
         if(!name.equals("@string/enter_name") || !name.equals(""))
@@ -59,17 +66,6 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
             Toast welcome = Toast.makeText(context, "Welcome back "+MyPreferenceFragment.getName(this), Toast.LENGTH_LONG);
             welcome.show();
         }
-
-        //here we create a new adapter linking the products and the
-        //listview
-        adapter =  new ArrayAdapter<Product>(this,
-                android.R.layout.simple_list_item_checked, products);
-
-        //setting the adapter on the listview
-        listView.setAdapter(adapter);
-        //here we set the choice mode - meaning in this case we can
-        //only select one item at a time.
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         Button addButton = (Button) findViewById(R.id.addButton);
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -81,7 +77,8 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
                 EditText quantityInput = (EditText)findViewById(R.id.quantity);
                 Integer quantity = Integer.parseInt(quantityInput.getText().toString());
 
-                products.add(new Product(name, quantity));
+                firebase.push().setValue(new Product(name, quantity));
+
                 //The next line is needed in order to say to the ListView
                 //that the data has changed - we have added stuff now!
                 getMyAdapter().notifyDataSetChanged();
@@ -93,20 +90,16 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
             @Override
             public void onClick(View v) {
                 SparseBooleanArray array = listView.getCheckedItemPositions();
-                int size = array.size();
-                int removed = 0;
+                int size = getMyAdapter().getCount();
 
                 for(int i = 0; i < size; i++) {
-                    int key = array.keyAt(i);
-                    boolean selected = array.get(key);
-                    if (selected)
+                    if (array.get(i))
                     {
-                        products.remove(key-removed);
-                        listView.setItemChecked(key,false);
-                        removed++;
+                        listView.setItemChecked(i,false);
+                        getMyAdapter().getRef(i).setValue(null);
                     }
                 }
-                adapter.notifyDataSetChanged();
+                getMyAdapter().notifyDataSetChanged();
             }
         });
     }
@@ -147,16 +140,19 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("list", products);
+        //outState.putParcelableArrayList("list", products);
     }
 
     @Override
     public void onPositiveClicked() {
-        adapter.clear();
-        listView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-        products.clear(); //here you can do stuff with the bag and
-        //adapter etc.
+        firebase.removeValue();
+        getMyAdapter().notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mAdapter.cleanup();
     }
 
     public static class MyDialog extends AreYouSureDialog {
