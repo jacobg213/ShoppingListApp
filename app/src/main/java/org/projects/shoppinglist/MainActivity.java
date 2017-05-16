@@ -3,6 +3,7 @@ package org.projects.shoppinglist;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,10 +23,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity implements AreYouSureDialog.OnPositiveListener {
 
     ListView listView;
     FirebaseListAdapter mAdapter;
+    ArrayList<Product> lastDeletedProducts = new ArrayList<>();
 
     static AreYouSureDialog dialog;
     static Context context;
@@ -91,15 +97,34 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
             public void onClick(View v) {
                 SparseBooleanArray array = listView.getCheckedItemPositions();
                 int size = getMyAdapter().getCount();
+                lastDeletedProducts = new ArrayList<>();
 
                 for(int i = 0; i < size; i++) {
                     if (array.get(i))
                     {
+                        Product p = (Product) listView.getItemAtPosition(i);
+                        lastDeletedProducts.add(p);
                         listView.setItemChecked(i,false);
                         getMyAdapter().getRef(i).setValue(null);
                     }
                 }
                 getMyAdapter().notifyDataSetChanged();
+                Snackbar snackbar = Snackbar
+                        .make(listView, "Item Deleted", Snackbar.LENGTH_LONG)
+                        .setAction("UNDO", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                for (Product product : lastDeletedProducts){
+                                    firebase.push().setValue(product);
+                                }
+                                getMyAdapter().notifyDataSetChanged();
+                                Snackbar snackbar = Snackbar.make(listView, "Items restored!", Snackbar.LENGTH_LONG);
+                                snackbar.show();
+                            }
+                        });
+
+                snackbar.show();
+
             }
         });
     }
