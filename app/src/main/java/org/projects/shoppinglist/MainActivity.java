@@ -77,17 +77,23 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 EditText nameInput = (EditText)findViewById(R.id.name);
                 String name = nameInput.getText().toString();
+                if(!name.equals("")){
+                    EditText quantityInput = (EditText)findViewById(R.id.quantity);
+                    Integer quantity = 1;
+                    if(!quantityInput.getText().toString().equals("")){
+                        quantity = Integer.parseInt(quantityInput.getText().toString());
 
-                EditText quantityInput = (EditText)findViewById(R.id.quantity);
-                Integer quantity = Integer.parseInt(quantityInput.getText().toString());
+                    }
+                    firebase.push().setValue(new Product(name, quantity));
 
-                firebase.push().setValue(new Product(name, quantity));
+                    //The next line is needed in order to say to the ListView
+                    //that the data has changed - we have added stuff now!
+                    getMyAdapter().notifyDataSetChanged();
+                }
 
-                //The next line is needed in order to say to the ListView
-                //that the data has changed - we have added stuff now!
-                getMyAdapter().notifyDataSetChanged();
             }
         });
 
