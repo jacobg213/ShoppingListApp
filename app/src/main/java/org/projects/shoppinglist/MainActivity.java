@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.putExtra(Intent.EXTRA_TEXT, toShare);
             sendIntent.setType("text/plain");
-            startActivity(sendIntent);
+            startActivity(Intent.createChooser(sendIntent, "Share with:"));
         }
         if (item.getItemId()==R.id.settings)
         {
