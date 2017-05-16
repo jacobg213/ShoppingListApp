@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
         listView.setAdapter(mAdapter);
 
         String name = MyPreferenceFragment.getName(this);
-        if(!name.equals("@string/enter_name") || !name.equals(""))
+        if(!name.equals(""))
         {
             Toast welcome = Toast.makeText(context, "Welcome back "+MyPreferenceFragment.getName(this), Toast.LENGTH_LONG);
             welcome.show();
