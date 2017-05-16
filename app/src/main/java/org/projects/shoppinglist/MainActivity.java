@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
                 }
                 getMyAdapter().notifyDataSetChanged();
                 Snackbar snackbar = Snackbar
-                        .make(listView, "Item Deleted", Snackbar.LENGTH_LONG)
+                        .make(listView, "Items Deleted", Snackbar.LENGTH_LONG)
                         .setAction("UNDO", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
