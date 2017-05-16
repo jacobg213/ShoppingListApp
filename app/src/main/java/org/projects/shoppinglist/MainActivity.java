@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.util.SparseBooleanArray;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -37,8 +38,7 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
     static Context context;
     final DatabaseReference firebase = FirebaseDatabase.getInstance().getReference().child("items");
 
-    public FirebaseListAdapter getMyAdapter()
-    {
+    public FirebaseListAdapter getMyAdapter() {
         return mAdapter;
     }
 
@@ -67,9 +67,8 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
         listView.setAdapter(mAdapter);
 
         String name = MyPreferenceFragment.getName(this);
-        if(!name.equals(""))
-        {
-            Toast welcome = Toast.makeText(context, "Welcome back "+MyPreferenceFragment.getName(this), Toast.LENGTH_LONG);
+        if (!name.equals("")) {
+            Toast welcome = Toast.makeText(context, "Welcome back " + MyPreferenceFragment.getName(this), Toast.LENGTH_LONG);
             welcome.show();
         }
 
@@ -78,12 +77,12 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
             @Override
             public void onClick(View v) {
 
-                EditText nameInput = (EditText)findViewById(R.id.name);
+                EditText nameInput = (EditText) findViewById(R.id.name);
                 String name = nameInput.getText().toString();
-                if(!name.equals("")){
-                    EditText quantityInput = (EditText)findViewById(R.id.quantity);
+                if (!name.equals("")) {
+                    EditText quantityInput = (EditText) findViewById(R.id.quantity);
                     Integer quantity = 1;
-                    if(!quantityInput.getText().toString().equals("")){
+                    if (!quantityInput.getText().toString().equals("")) {
                         quantity = Integer.parseInt(quantityInput.getText().toString());
 
                     }
@@ -104,35 +103,46 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
             @Override
             public void onClick(View v) {
                 SparseBooleanArray array = listView.getCheckedItemPositions();
+                boolean removed = false;
                 int size = getMyAdapter().getCount();
-                lastDeletedProducts = new ArrayList<>();
+                if (size > 0) {
+                    lastDeletedProducts = new ArrayList<>();
+                    for (int i = 0; i < size; i++) {
+                        if (array.get(i)) {
+                            removed = true;
+                            Product p = (Product) listView.getItemAtPosition(i);
+                            lastDeletedProducts.add(p);
+                            listView.setItemChecked(i, false);
+                            getMyAdapter().getRef(i).setValue(null);
+                        }
+                    }
+                    if (removed) {
+                        getMyAdapter().notifyDataSetChanged();
+                        Snackbar snackbar = Snackbar
+                                .make(listView, "Items Deleted", Snackbar.LENGTH_LONG)
+                                .setAction("UNDO", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        for (Product product : lastDeletedProducts) {
+                                            firebase.push().setValue(product);
+                                        }
+                                        getMyAdapter().notifyDataSetChanged();
+                                        Snackbar snackbar = Snackbar.make(listView, "Items restored!", Snackbar.LENGTH_LONG);
+                                        snackbar.show();
+                                    }
+                                });
 
-                for(int i = 0; i < size; i++) {
-                    if (array.get(i))
-                    {
-                        Product p = (Product) listView.getItemAtPosition(i);
-                        lastDeletedProducts.add(p);
-                        listView.setItemChecked(i,false);
-                        getMyAdapter().getRef(i).setValue(null);
+                        snackbar.show();
+                    }
+                    else {
+                        Toast toast = Toast.makeText(context, "Nothing selected to delete.", Toast.LENGTH_SHORT);
+                        toast.show();
                     }
                 }
-                getMyAdapter().notifyDataSetChanged();
-                Snackbar snackbar = Snackbar
-                        .make(listView, "Items Deleted", Snackbar.LENGTH_LONG)
-                        .setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                for (Product product : lastDeletedProducts){
-                                    firebase.push().setValue(product);
-                                }
-                                getMyAdapter().notifyDataSetChanged();
-                                Snackbar snackbar = Snackbar.make(listView, "Items restored!", Snackbar.LENGTH_LONG);
-                                snackbar.show();
-                            }
-                        });
-
-                snackbar.show();
-
+                else {
+                    Toast toast = Toast.makeText(context, "Nothing to delete.", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
             }
         });
     }
@@ -158,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
         }
         String toShare = "To buy: ";
         if (id == R.id.shareButton) {
-            for(int i = 0; i < listView.getCount() ; i++){
+            for (int i = 0; i < listView.getCount(); i++) {
                 Product p = (Product) listView.getItemAtPosition(i);
                 toShare += p.getQuantity() + " " + p.getName() + ", ";
             }
@@ -169,12 +179,11 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
             sendIntent.setType("text/plain");
             startActivity(Intent.createChooser(sendIntent, "Share with:"));
         }
-        if (item.getItemId()==R.id.settings)
-        {
+        if (item.getItemId() == R.id.settings) {
             //Start our settingsactivity and listen to result - i.e.
             //when it is finished.
-            Intent intent = new Intent(this,SettingsActivity.class);
-            startActivityForResult(intent,1);
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, 1);
             //notice the 1 here - this is the code we then listen for in the
             //onActivityResult
 
@@ -192,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
     public void onPositiveClicked() {
         firebase.removeValue();
         Toast toast = Toast.makeText(context, "Cleared.", Toast.LENGTH_SHORT);
+        toast.show();
         getMyAdapter().notifyDataSetChanged();
     }
 
