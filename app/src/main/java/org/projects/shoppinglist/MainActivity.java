@@ -123,7 +123,19 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
             dialog = new MyDialog();
             dialog.show(getFragmentManager(), "MyFragment");
         }
-
+        String toShare = "To buy: ";
+        if (id == R.id.shareButton) {
+            for(int i = 0; i < listView.getCount() ; i++){
+                Product p = (Product) listView.getItemAtPosition(i);
+                toShare += p.getQuantity() + " " + p.getName() + ", ";
+            }
+            toShare = toShare.substring(0, toShare.length() - 2) + ".";
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, toShare);
+            sendIntent.setType("text/plain");
+            startActivity(sendIntent);
+        }
         if (item.getItemId()==R.id.settings)
         {
             //Start our settingsactivity and listen to result - i.e.
@@ -146,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
     @Override
     public void onPositiveClicked() {
         firebase.removeValue();
+        Toast toast = Toast.makeText(context, "Cleared.", Toast.LENGTH_SHORT);
         getMyAdapter().notifyDataSetChanged();
     }
 
