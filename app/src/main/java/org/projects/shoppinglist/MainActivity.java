@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
 
                     //The next line is needed in order to say to the ListView
                     //that the data has changed - we have added stuff now!
+                    nameInput.setText("");
+                    quantityInput.setText("");
                     getMyAdapter().notifyDataSetChanged();
                 }
 
