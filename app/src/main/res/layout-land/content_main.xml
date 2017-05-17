@@ -36,12 +36,11 @@
             <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textAutoComplete"
                 android:layout_gravity="center"
                 android:ems="10"
                 android:hint="@string/item"
-                android:id="@+id/name"
-                android:singleLine="false" />
+                android:id="@+id/name" />
 
             <EditText
                 android:layout_width="wrap_content"
@@ -50,8 +49,7 @@
                 android:ems="10"
                 android:id="@+id/quantity"
                 android:layout_gravity="center"
-                android:hint="@string/qty"
-                android:singleLine="false" />
+                android:hint="@string/qty" />
 
             <Button
                 android:id="@+id/addButton"

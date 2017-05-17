@@ -81,10 +81,9 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
                 String name = nameInput.getText().toString();
                 if (!name.equals("")) {
                     EditText quantityInput = (EditText) findViewById(R.id.quantity);
-                    Integer quantity = 1;
+                    Integer quantity = 0;
                     if (!quantityInput.getText().toString().equals("")) {
                         quantity = Integer.parseInt(quantityInput.getText().toString());
-
                     }
                     firebase.push().setValue(new Product(name, quantity));
 

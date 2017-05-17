@@ -26,24 +26,22 @@
         android:layout_height="wrap_content"
         android:weightSum="1">
         <EditText
-            android:layout_width="157dp"
+            android:layout_width="142dp"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
+            android:inputType="textAutoComplete"
             android:ems="10"
             android:hint="@string/item"
             android:id="@+id/name"
-            android:singleLine="false"
-            android:layout_weight="0.25" />
+            android:layout_weight="0.54" />
 
         <EditText
-            android:layout_width="52dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="number"
             android:ems="10"
             android:id="@+id/quantity"
             android:hint="@string/qty"
-            android:singleLine="false"
-            android:layout_weight="0.86" />
+            android:layout_weight="0.47" />
 
             <Button
                 android:id="@+id/addButton"
