@@ -165,8 +165,8 @@ public class MainActivity extends AppCompatActivity implements AreYouSureDialog.
             dialog = new MyDialog();
             dialog.show(getFragmentManager(), "MyFragment");
         }
-        String toShare = "To buy: ";
         if (id == R.id.shareButton) {
+            String toShare = "To buy: ";
             for (int i = 0; i < listView.getCount(); i++) {
                 Product p = (Product) listView.getItemAtPosition(i);
                 toShare += p.getQuantity() + " " + p.getName() + ", ";
